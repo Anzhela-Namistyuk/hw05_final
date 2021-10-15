@@ -338,7 +338,9 @@ class PostVerificationTests(TestCase):
         author = first_object.author
         Follow.objects.create(user=self.user_2, author=author)
 
-        response_1 = self.authorized_client_2.get(reverse('posts:follow_index'))
+        response_1 = self.authorized_client_2.get(reverse(
+            'posts:follow_index')
+        )
         response_count_1 = len(response_1.context['page_obj'])
 
         new_post = Post.objects.create(
@@ -346,7 +348,9 @@ class PostVerificationTests(TestCase):
             text='Тестовый текст 3 поста'
         )
 
-        response_2 = self.authorized_client_2.get(reverse('posts:follow_index'))
+        response_2 = self.authorized_client_2.get(reverse(
+            'posts:follow_index')
+        )
         response_count_2 = len(response_2.context['page_obj'])
         self.assertEqual(response_count_2, response_count_1 + 1)
 

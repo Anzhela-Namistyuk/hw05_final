@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import get_object_or_404, redirect, render, HttpResponseRedirect
+from django.shortcuts import (get_object_or_404,
+                              redirect, render,
+                              HttpResponseRedirect)
 from django.views.decorators.cache import cache_page
 
 from yatube.settings import PAGE_POST
@@ -143,6 +145,7 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    Follow.objects.filter(user=request.user, author__username=username).delete()
+    Follow.objects.filter(
+        user=request.user, author__username=username).delete()
     return redirect('posts:profile', username=username)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

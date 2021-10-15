@@ -11,3 +11,4 @@ class CreatedModel(models.Model):
     class Meta:
         # Это абстрактная модель:
         abstract = True
+        

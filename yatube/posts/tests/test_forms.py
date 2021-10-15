@@ -36,7 +36,6 @@ class PostCreateFormTests(TestCase):
             post=cls.post
         )
 
-
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
@@ -124,7 +123,7 @@ class PostCreateFormTests(TestCase):
         )
         self.assertRedirects(
             response,
-            reverse('users:login')+'?next=/create/'
+            reverse('users:login') + '?next=/create/'
         )
         self.assertFalse(
             Post.objects.filter(
