@@ -5,7 +5,7 @@ from django.urls import include, path
 
 handler404 = 'core.views.page_not_found'
 handler500 = 'core.views.server_error'
-handler403 = 'core.view.check_error'
+# handler403 = 'core.view.check_error'
 urlpatterns = [
     path('', include('posts.urls', namespace='posts')),
     path('admin/', admin.site.urls),

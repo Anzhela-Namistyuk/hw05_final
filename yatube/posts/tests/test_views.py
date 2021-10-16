@@ -49,18 +49,13 @@ class PostPagesTests(TestCase):
             image=uploaded,
         )
 
-        # cls.follow = Follow.objects.create(
-        #     user=cls.user,
-        #     author=cls.user_2
-        # )
-
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
     def setUp(self):
-
+        cache.clear()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
 
@@ -189,6 +184,7 @@ class PostPagesTests(TestCase):
 class PaginatorViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):
+        cache.clear()
         super().setUpClass()
         cls.user = User.objects.create_user(username='auth')
 
@@ -253,6 +249,7 @@ class PostVerificationTests(TestCase):
         )
 
     def setUp(self):
+        cache.clear()
 
         self.authorized_client_2 = Client()
         self.authorized_client_2.force_login(self.user_2)
@@ -287,7 +284,7 @@ class PostVerificationTests(TestCase):
         post_2 = Post.objects.create(
             author=self.user,
             text='Тестовый текст 2-ого поста',
-            group=self.group,
+
         )
         post_count_new = Post.objects.count()
         response_1 = self.authorized_client.get(reverse('posts:index'))
@@ -296,10 +293,10 @@ class PostVerificationTests(TestCase):
         first_object = response_1.context['page_obj'][0]
         post_author_0 = first_object.author.username
         post_text_0 = first_object.text
-        post_group_0 = first_object.group.title
+
         self.assertEqual(post_author_0, post_2.author.username)
         self.assertEqual(post_text_0, post_2.text)
-        self.assertEqual(post_group_0, post_2.group.title)
+
         page_cached = response_1.content
         post_2.delete()
         response_2 = self.authorized_client.get(reverse('posts:index'))

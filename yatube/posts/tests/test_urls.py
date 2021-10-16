@@ -1,6 +1,7 @@
 from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import Client, TestCase
 
 from ..models import Group, Post
@@ -37,6 +38,7 @@ class PostURLTests(TestCase):
         )
 
     def setUp(self):
+        cache.clear()
         self.user = User.objects.create_user(username='auth')
         # Создаем неавторизованный клиент
         self.guest_client = Client()
@@ -62,6 +64,8 @@ class PostURLTests(TestCase):
             'posts/create_post.html',
             '/create/':
             'posts/create_post.html',
+            '/follow/':
+            'posts/follow.html',
         }
 
         for adress, template in templates_url_names.items():
