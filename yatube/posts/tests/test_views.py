@@ -247,11 +247,7 @@ class PostVerificationTests(TestCase):
             text='Тестовый текст',
             group=cls.group1,
         )
-        cls.post = Post.objects.create(
-            author=cls.user_2,
-            text='Тестовый текст blogger',
-            group=cls.group1,
-        )
+      
         cls.follow = Follow.objects.create(
             user=cls.user_3,
             author=cls.user_2
@@ -365,10 +361,15 @@ class PostVerificationTests(TestCase):
         self.assertEqual(post_text_0, new_post.text)
 
     def test_new_post_not_exists_in_page_follow(self):
+        Post.objects.create(
+            author=self.user_2,
+            text='Тестовый текст blogger',
+        )
         response = self.authorized_client_3.get(reverse(
             'posts:follow_index')
         )
         response_count = len(response.context['page_obj'])
+
         new_post = Post.objects.create(
             author=self.user,
             text='Тестовый текст нового поста'
