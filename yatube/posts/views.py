@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
-from django.shortcuts import (HttpResponseRedirect, get_object_or_404,
+from django.shortcuts import (get_object_or_404,
                               redirect, render)
 from django.views.decorators.cache import cache_page
 
@@ -22,7 +22,6 @@ def index(request):
     page_obj = get_paginator(request, posts_list)
     context = {
         'page_obj': page_obj,
-        'title': 'Главная страница',
     }
     return render(request, 'posts/index.html', context)
 
@@ -31,11 +30,9 @@ def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     posts_list = group.group_posts.all()
     page_obj = get_paginator(request, posts_list)
-    title = f'Записи сообщества {group.title}'
     context = {
         'page_obj': page_obj,
         'group': group,
-        'title': title,
     }
     return render(request, 'posts/group_list.html', context)
 
@@ -76,7 +73,7 @@ def post_create(request):
         form = PostForm()
         return render(request, 'posts/create_post.html', {'form': form})
 
-    form = PostForm(request.POST, files=request.FILES or None)
+    form = PostForm(request.POST or None, files=request.FILES or None)
     if form.is_valid():
         post = form.save(commit=False)
         post.author = request.user
@@ -127,7 +124,6 @@ def follow_index(request):
     page_obj = get_paginator(request, posts_list)
     context = {
         'page_obj': page_obj,
-        'title': 'Подписки на посты'
     }
     return render(request, 'posts/follow.html', context)
 
@@ -139,7 +135,7 @@ def profile_follow(request, username):
     if user != author:
         Follow.objects.get_or_create(user=user, author=author)
         return redirect('posts:profile', username=username)
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('posts:profile', username=username)
 
 
 @login_required
@@ -147,4 +143,3 @@ def profile_unfollow(request, username):
     Follow.objects.filter(
         user=request.user, author__username=username).delete()
     return redirect('posts:profile', username=username)
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

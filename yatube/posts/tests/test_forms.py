@@ -163,15 +163,17 @@ class PostCreateFormTests(TestCase):
         form_data = {
             'text': self.comment.text,
         }
+        url = reverse('posts:add_comment',
+                    kwargs={'post_id': self.post.pk})
+
         response = self.guest_client.post(
-            reverse('posts:add_comment',
-                    kwargs={'post_id': self.post.pk}),
+            url,
             data=form_data,
             follow=True
         )
         self.assertRedirects(
             response,
-            reverse('users:login') + f'?next=/posts/{self.post.pk}/comment'
+            f'/auth/login/?next={url}'
         )
         self.assertFalse(
             Post.objects.filter(

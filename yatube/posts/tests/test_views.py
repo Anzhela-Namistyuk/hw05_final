@@ -247,9 +247,20 @@ class PostVerificationTests(TestCase):
             text='Тестовый текст',
             group=cls.group1,
         )
+        cls.post = Post.objects.create(
+            author=cls.user_2,
+            text='Тестовый текст blogger',
+            group=cls.group1,
+        )
+        cls.follow = Follow.objects.create(
+            user=cls.user_3,
+            author=cls.user_2
+        )
 
     def setUp(self):
         cache.clear()
+        self.authorized_client_3 = Client()
+        self.authorized_client_3.force_login(self.user_3)
 
         self.authorized_client_2 = Client()
         self.authorized_client_2.force_login(self.user_2)
@@ -307,26 +318,22 @@ class PostVerificationTests(TestCase):
         response_count_last = len(response_3.context['page_obj'])
         self.assertEqual(response_count_last, post_count)
 
-    def test_profile_follow_unfollow(self):
-        response = self.authorized_client_2.get(reverse(
-            'posts:profile', kwargs={'username': self.user.username}))
-        first_object = response.context['page_obj'][0]
-        author = first_object.author
-        follow = Follow.objects.create(user=self.user_2, author=author)
-        self.assertTrue(
-            Follow.objects.filter(
-                user=self.user_2,
-                author=author
-            ).exists()
-        )
-        follow.delete()
+    def test_profile_follow(self):
+        Follow.objects.create(user=self.user_2, author=self.post.author)
+        response = self.authorized_client_2.get(reverse('posts:follow_index'))
+        object_response =response.context['page_obj'][0]
+        post_author_0 = object_response.author.username
+        self.assertEqual(post_author_0, self.post.author.username)
 
+    def test_profile_unfollow(self):
+        Follow.objects.filter(
+            user=self.user_2, author=self.post.author).delete()
         self.assertFalse(
-            Follow.objects.filter(
-                user=self.user_2,
-                author=author
-            ).exists()
-        )
+                Follow.objects.filter(
+                    user=self.user_2,
+                    author=self.post.author
+                ).exists()
+            )
 
     def test_new_post_exists_in_page_follow(self):
         response = self.authorized_client_2.get(reverse(
@@ -356,3 +363,24 @@ class PostVerificationTests(TestCase):
         post_text_0 = first_object.text
         self.assertEqual(post_author_0, new_post.author.username)
         self.assertEqual(post_text_0, new_post.text)
+
+    def test_new_post_not_exists_in_page_follow(self):
+        response = self.authorized_client_3.get(reverse(
+            'posts:follow_index')
+        )
+        response_count = len(response.context['page_obj'])
+        new_post = Post.objects.create(
+            author=self.user,
+            text='Тестовый текст нового поста'
+        )
+        response_1 = self.authorized_client_3.get(reverse(
+            'posts:follow_index')
+        )
+        response_count_1 = len(response_1.context['page_obj'])
+        self.assertEqual(response_count, response_count_1)
+
+        first_object = response_1.context['page_obj'][0]
+        post_author_0 = first_object.author.username
+        post_text_0 = first_object.text
+        self.assertNotEqual(post_author_0, new_post.author.username)
+        self.assertNotEqual(post_text_0, new_post.text)
