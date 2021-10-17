@@ -247,7 +247,6 @@ class PostVerificationTests(TestCase):
             text='Тестовый текст',
             group=cls.group1,
         )
-      
         cls.follow = Follow.objects.create(
             user=cls.user_3,
             author=cls.user_2
