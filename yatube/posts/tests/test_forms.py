@@ -163,8 +163,7 @@ class PostCreateFormTests(TestCase):
         form_data = {
             'text': self.comment.text,
         }
-        url = reverse('posts:add_comment',
-                    kwargs={'post_id': self.post.pk})
+        url = reverse('posts:add_comment', kwargs={'post_id': self.post.pk})
 
         response = self.guest_client.post(
             url,

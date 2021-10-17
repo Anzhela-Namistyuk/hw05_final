@@ -321,7 +321,7 @@ class PostVerificationTests(TestCase):
     def test_profile_follow(self):
         Follow.objects.create(user=self.user_2, author=self.post.author)
         response = self.authorized_client_2.get(reverse('posts:follow_index'))
-        object_response =response.context['page_obj'][0]
+        object_response = response.context['page_obj'][0]
         post_author_0 = object_response.author.username
         self.assertEqual(post_author_0, self.post.author.username)
 
@@ -329,11 +329,11 @@ class PostVerificationTests(TestCase):
         Follow.objects.filter(
             user=self.user_2, author=self.post.author).delete()
         self.assertFalse(
-                Follow.objects.filter(
-                    user=self.user_2,
-                    author=self.post.author
-                ).exists()
-            )
+            Follow.objects.filter(
+                user=self.user_2,
+                author=self.post.author
+            ).exists()
+        )
 
     def test_new_post_exists_in_page_follow(self):
         response = self.authorized_client_2.get(reverse(
