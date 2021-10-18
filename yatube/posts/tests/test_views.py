@@ -314,21 +314,24 @@ class PostVerificationTests(TestCase):
         self.assertEqual(response_count_last, post_count)
 
     def test_profile_follow(self):
-        Follow.objects.create(user=self.user_2, author=self.post.author)
-        response = self.authorized_client_2.get(reverse('posts:follow_index'))
-        object_response = response.context['page_obj'][0]
-        post_author_0 = object_response.author.username
-        self.assertEqual(post_author_0, self.post.author.username)
+        follow_count_1 = Follow.objects.count()
+        self.authorized_client_2.post(reverse(
+            'posts:profile_follow',
+            kwargs={'username': self.post.author.username})
+        )
+        follow_count_2 = Follow.objects.count()
+        self.assertEqual(follow_count_2, follow_count_1 + 1)
+        self.assertTrue(self.post.author.following.exists())
 
     def test_profile_unfollow(self):
-        Follow.objects.filter(
-            user=self.user_2, author=self.post.author).delete()
-        self.assertFalse(
-            Follow.objects.filter(
-                user=self.user_2,
-                author=self.post.author
-            ).exists()
+        follow_count_1 = Follow.objects.count()
+        self.authorized_client_3.post(reverse(
+            'posts:profile_unfollow',
+            kwargs={'username': self.user_2.username})
         )
+        follow_count_2 = Follow.objects.count()
+        self.assertEqual(follow_count_2, follow_count_1 - 1)
+        self.assertFalse(self.user_2.following.exists())
 
     def test_new_post_exists_in_page_follow(self):
         response = self.authorized_client_2.get(reverse(
